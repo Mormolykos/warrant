@@ -179,6 +179,72 @@ That is an absent value being reported as a negative finding, which is the exact
 failure the layer was built to prevent, appearing in the baseline rather than in
 the instrument.
 
+## 6c. Prompt sensitivity — the attack on §6b, and what it did to it
+
+The obvious rebuttal to §6b is *"the model would distinguish missing information
+perfectly if you simply told it to be conservative."* Four prompts were written
+and fixed before the run, and all four are reported. Two models, 728 pairs each,
+**5,824 judgements, zero unparsed**, all local, no API key.
+
+- **p0** the original prompt, run again as an exact replication
+- **p1** lists the conditions that must be present and requires NOT_ENOUGH_INFO otherwise
+- **p2** forbids using any knowledge outside the supplied sentences
+- **p3** instructs conservative adjudication, preferring NOT_ENOUGH_INFO
+
+### Overall distribution
+
+| run | CONTRADICTION | NO_CONTRADICTION | NOT_ENOUGH_INFO |
+|---|---|---|---|
+| 14b p0 | 39.6% | 32.0% | 28.4% |
+| 14b p1 | 19.0% | 10.7% | 70.3% |
+| 14b p2 | 23.5% | 25.3% | 51.2% |
+| 14b p3 | 28.8% | 37.9% | 33.2% |
+| 8b p0 | 24.2% | 56.2% | 19.6% |
+| 8b p1 | 1.2% | 12.5% | 86.3% |
+| 8b p2 | 16.3% | 16.5% | 67.2% |
+| 8b p3 | 14.8% | 7.1% | 78.0% |
+
+**Caution works on the rate.** Refusal rises from 28.4% to 70.3% (14B) and from
+19.6% to 86.3% (8B). The rebuttal is right that far.
+
+### Direction — and this is where it fails
+
+| run | CONTRADICTION stated | missing | difference | p |
+|---|---|---|---|---|
+| 14b p0 | 40.1% | 39.4% | −0.7 pp | 0.866 |
+| 14b p1 | 11.4% | 21.2% | **+9.8 pp** | 0.004 |
+| 14b p2 | 17.4% | 25.3% | **+7.9 pp** | 0.033 |
+| 14b p3 | 24.0% | 30.3% | +6.4 pp | 0.112 |
+| 8b p0 | 19.2% | 25.7% | +6.5 pp | 0.085 |
+| 8b p1 | 0.0% | 1.6% | +1.6 pp | 0.100 |
+| 8b p2 | 12.0% | 17.6% | +5.7 pp | 0.082 |
+| 8b p3 | 9.0% | 16.6% | **+7.6 pp** | 0.015 |
+
+Correct behaviour is a *negative* difference. **Seven of eight runs are positive**
+— contradiction asserted more often where the conditions are missing. Sign test,
+one-sided, **p = 0.035**. The inversion is largest under p1, the most cautious
+prompt.
+
+So the answer to the rebuttal is: telling the model to be conservative raises
+refusal by forty points and does not correct the direction at all.
+
+### Replication and prompt fragility
+
+The 8B model's p0 re-run is **identical** to the original §6b run on all 728
+pairs; the 14B's is within 0.5 pp. The pipeline reproduces.
+
+Agreement between runs is low. Same model, temperature 0, p0 against p1: **54.8%**
+— prompt wording alone changes nearly half the verdicts. Same prompt, different
+model: 61.5%.
+
+### A mechanism, offered as hypothesis and NOT tested
+
+When conditions are stated, a model can see that they differ, and refuses. When
+they are absent there is nothing visible to differ, so two bare opposing claims
+read as a clean conflict. On that account, absence of stated conditions is being
+treated as absence of confounds. Testing it needs pairs whose conditions are
+stated *and identical*; this corpus contains four.
+
 ## 7. Limitations
 
 - **Single extractor, single model, single annotator.** No inter-annotator
@@ -204,12 +270,24 @@ the instrument.
 - **Two models, one family, one quantisation.** qwen3 14B and 8B at Q4_K_M. The
   61% agreement between them is itself evidence that a third model would land
   somewhere else again.
-- **Prompt sensitivity is NOT measured, and it is the most likely challenge.**
-  One prompt was used. Refusal rates are known to move a great deal with wording,
-  and a prompt that pushed harder toward NOT_ENOUGH_INFO would raise that rate.
-  What it would have to do to overturn the finding is raise it *selectively* on
-  the pairs whose text is missing — and nothing here tests that. Until it is
-  tested, the honest statement is about this prompt.
+- **Prompt sensitivity IS now measured, and it overturned the original wording.**
+  Four pre-registered prompts × two models × 728 pairs = 5,824 judgements, run
+  2026-08-27. The original write-up of §6b said the models were *insensitive* to
+  whether the text stated its conditions (p = 0.469, p = 0.791). That was a
+  property of one prompt. Under cautious prompting the effect is not absent, it
+  is **inverted and significant**: contradiction is asserted more often when the
+  conditions are missing, in seven of eight runs (sign test p = 0.035), largest
+  under the most cautious prompt (+9.8 pp, p = 0.004). Caution moves the overall
+  refusal rate from 28.4% to 70.3% (14B) and 19.6% to 86.3% (8B) without changing
+  the direction. **The §6b tables below are left exactly as first written and are
+  correct for the prompt they describe; the conclusion drawn from them was too
+  weak and is superseded by §6c.**
+- **Sixteen significance tests were run across the matrix.** Three reach p < 0.05
+  individually; at that count some would be expected by chance. The direction
+  claim rests on the sign test across runs, not on any single run.
+- **The pooled estimate is deliberately not quoted as a result.** Pooling all
+  eight runs gives +5.6 pp at z = 4.4, but the runs share the same 728 pairs and
+  are not independent, so that interval is too narrow to mean what it appears to.
 - **"Checkable" is defined by my extractor**, so §6b inherits every limitation of
   §1–§2, including the 97.5% null-decision stability rather than 100%.
 - **The 95% CI on the 14B contradiction difference is [−5.4, +11.6] pp.** This

@@ -68,7 +68,7 @@ of an opposed pair is **0.000**, and accepting *any shared token whatsoever*
 across all three axes recovers **4 pairs out of 728**. The vocabularies do not
 overlap; the missing component is concept mapping, not normalisation.
 
-**3. Language models do not become more cautious when the text says less.**
+**3. Language models assert contradiction MORE often when the text says less.**
 
 Two local models judged all 728 pairs with three allowed answers —
 CONTRADICTION, NO_CONTRADICTION, NOT_ENOUGH_INFO — given exactly what the
@@ -80,31 +80,62 @@ deterministic layer was given. 1,456 judgements, zero unparsed.
 | NO_CONTRADICTION | 31.3% | 56.2% |
 | NOT_ENOUGH_INFO | 28.6% | 19.6% |
 
-Splitting by whether the sentences state all three axes:
+Four pre-registered prompts were run against both models — the original, one
+listing the conditions that must be present and requiring refusal otherwise, one
+forbidding any use of outside knowledge, and one instructing conservative
+adjudication. Eight runs, 5,824 judgements. Splitting each by whether the
+sentences state all three axes:
 
-| model | measure | text states all 3 | text does not | diff | p |
-|---|---|---|---|---|---|
-| 14b | CONTRADICTION | 42.5% | 39.4% | +3.1 pp | 0.470 |
-| 14b | NOT_ENOUGH_INFO | 26.3% | 29.2% | −2.9 pp | 0.469 |
-| 8b | CONTRADICTION | 19.2% | 25.7% | −6.5 pp | 0.085 |
-| 8b | NOT_ENOUGH_INFO | 20.4% | 19.4% | +0.9 pp | 0.791 |
+| run | CONTRADICTION when stated | when missing | difference |
+|---|---|---|---|
+| 14b · original | 40.1% | 39.4% | −0.7 pp |
+| 14b · caution | 11.4% | 21.2% | **+9.8 pp** (p=0.004) |
+| 14b · strict evidence | 17.4% | 25.3% | **+7.9 pp** (p=0.033) |
+| 14b · conservative | 24.0% | 30.3% | +6.4 pp (p=0.112) |
+| 8b · original | 19.2% | 25.7% | +6.5 pp (p=0.085) |
+| 8b · caution | 0.0% | 1.6% | +1.6 pp (p=0.100) |
+| 8b · strict evidence | 12.0% | 17.6% | +5.7 pp (p=0.082) |
+| 8b · conservative | 9.0% | 16.6% | **+7.6 pp** (p=0.015) |
 
-**In both models the rate of "not enough information" does not rise when the
-information is in fact absent.** The one nominally larger effect runs the wrong
-way: the 8B model asserts contradiction *more* often when the text states less.
+**Seven of eight runs assert contradiction more often when the conditions are
+missing than when they are stated** (sign test, one-sided p = 0.035). Correct
+behaviour is the opposite sign.
 
-**4. The two models disagree on 39% of pairs**, at temperature 0 on identical
-prompts. The single largest disagreement — 115 pairs — is the 14B answering
-*"I cannot tell"* where the 8B answers *"they do not conflict"*: an absent value
-reported as a negative finding.
+**Instructing the model to be conservative does not fix it.** Caution changes the
+overall rate enormously — `NOT_ENOUGH_INFO` rises from 28.4% to 70.3% on the 14B
+model and from 19.6% to 86.3% on the 8B. It does not change the direction. The
+inversion is *largest* under the most cautious prompt.
 
-## The shape of the result
+A mechanism that would explain this, **untested and offered as a hypothesis
+only**: when conditions are stated, a model can see that they differ and refuses.
+When they are absent there is nothing visible to differ, so two bare opposing
+claims read as a clean conflict. Absence of stated conditions is treated as
+absence of confounds.
 
-Neither approach works, and they fail as mirror images. The deterministic layer
-refuses everything. The models assert on 40% of pairs whose text cannot support
-an assertion. **The bottleneck is not detecting contradiction. It is establishing
-that two findings were ever about the same thing — and the sentences do not
-contain what that requires.**
+**4. Prompt choice changes nearly half the verdicts.** The original and cautious
+prompts agree on only 54.8% of pairs on the same model at temperature 0. The two
+models on the same prompt agree on 61.5%.
+
+Replication is clean: the 8B model's re-run of the original prompt is identical
+to the first run, and the 14B's is within 0.5 pp.
+
+## The strongest claim this evidence supports
+
+> Contradiction detection over claim sentences is unwarranted in most cases and
+> the failure is not random. For 77.1% of the pairs, the text does not state what
+> a verdict would require. Language models nevertheless answer, and answer
+> *more* confidently where the text says less — seven of eight prompt/model
+> combinations assert contradiction more often on pairs missing their conditions.
+> Instructing caution raises refusal by forty points without correcting the
+> direction. A deterministic check that requires the conditions returns nothing
+> at all, because no pair supplies them.
+
+**What this does not license.** It does not say the models are wrong on any
+particular pair — there is no ground truth for true contradiction here, and a
+model may be right from memorised knowledge of the underlying literature. It does
+not say the corpus is mislabelled; its annotators read whole abstracts. The claim
+is about **warrant**: a verdict asserted where the supplied text does not state
+what would be needed to rule out a difference in setup.
 
 ## Reproducing it
 
@@ -159,6 +190,17 @@ The full list is in [RESULTS.md](RESULTS.md). The ones that matter most:
   was 97.5%.
 - **Two models, one family, one quantisation.** Their 61% agreement is itself
   evidence a third would land elsewhere.
+- **The direction result rests on a sign test, not on the individual runs.**
+  Only three of eight runs reach p < 0.05 on their own, and with sixteen tests
+  across the matrix some of those would be expected by chance. The claim is
+  carried by seven of eight runs pointing the same way (p = 0.035), which is
+  real but modest evidence. Pooling the runs gives +5.6 pp at z = 4.4, and that
+  number is **not** quoted as a result: the eight runs share the same 728 pairs
+  and are not independent, so the pooled interval is too narrow.
+- **The mechanism is untested.** That absent conditions read as absent confounds
+  is a hypothesis consistent with the direction, not something measured here.
+  Testing it would need pairs where conditions are stated *and identical*, and
+  the corpus contains four.
 - **This is not a criticism of ManConCorpus.** Its annotators read whole
   abstracts and agreed with each other. This measures what survives into the
   sentence, which is the unit later systems consume.
