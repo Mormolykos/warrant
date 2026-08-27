@@ -1,0 +1,11 @@
+# The corpus is NEVER committed. fetch_corpus.py retrieves and verifies it.
+mancon.xml
+
+__pycache__/
+*.pyc
+.venv/
+.env
+*.errors.log
+
+# local extraction keeps the axis STRINGS; never committed (see LICENSE-DATA)
+data/axes_local.jsonl

@@ -1,0 +1,27 @@
+# Question ids used in this dataset.
+# The question TEXT is ManConCorpus content and is not redistributed here.
+# fetch_corpus.py + rebuild_ids.py regenerate this mapping from the corpus.
+Q01	sha256:91caaf0da6d181d7
+Q02	sha256:ba27acca77d882a8
+Q03	sha256:6e585a65bd9056d3
+Q04	sha256:a99b40b5371e9d81
+Q05	sha256:31c56472e1b19e18
+Q06	sha256:6fa7d406cc99c48c
+Q07	sha256:fb7add27d417ab18
+Q08	sha256:ee96889420112d26
+Q09	sha256:f67f687037290c1c
+Q10	sha256:69599e6e7765f118
+Q11	sha256:5359903bcca5e4e3
+Q12	sha256:c9ad49c814e582dc
+Q13	sha256:04e8352fe672968a
+Q14	sha256:48b81d0dfa2e731a
+Q15	sha256:e974af13c4dcd357
+Q16	sha256:fd8c4f6525b72ee9
+Q17	sha256:2b5ef15a09882651
+Q18	sha256:2752706e2fe011f7
+Q19	sha256:d99e77bab0141195
+Q20	sha256:04fbf8545a023bad
+Q21	sha256:4fa2d9b329b622ee
+Q22	sha256:1eb55de99829a74d
+Q23	sha256:4f8c175167a902e1
+Q24	sha256:b3d5cb1e478ce322

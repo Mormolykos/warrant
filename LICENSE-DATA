@@ -1,0 +1,59 @@
+LICENCE AND PROVENANCE OF THE DATA IN ./data
+============================================
+
+The code in this repository is MIT (see LICENSE). The data files are not, and
+this file explains exactly what is here and why.
+
+THE CORPUS IS NOT IN THIS REPOSITORY
+------------------------------------
+The experiment is run over ManConCorpus:
+
+    A. Alamri and M. Stevenson (2016). A Corpus of Potentially Contradictory
+    Research Claims from Cardiovascular Research Abstracts.
+    Journal of Biomedical Semantics 7:36.
+    doi:10.1186/s13326-016-0083-z
+    https://staffwww.dcs.shef.ac.uk/people/M.Stevenson/resources/bio_contradictions/
+
+It is licensed CC BY-NC-SA 2.0 UK by its authors. **No claim sentence, no
+research question, and no other corpus text appears anywhere in this
+repository.** `fetch_corpus.py` downloads it from the authors' own page and
+verifies its SHA-256 before anything will run.
+
+WHAT ./data ACTUALLY CONTAINS, AND WHY IT IS SAFE TO PUBLISH
+-----------------------------------------------------------
+`axes.jsonl` — for each claim: its PubMed id, a question id, the corpus's own
+YS/NO assertion, and **a boolean per comparability axis saying whether the
+sentence stated it**, plus a word count. The extracted axis STRINGS are not
+published.
+
+That exclusion is deliberate and was measured, not assumed. The extracted spans
+reproduce a median of 59% of their source sentence, 157 of 258 records reproduce
+more than half, and the worst case reproduces effectively all of it. That is a
+substantial reproduction of a CC BY-NC-SA corpus, so it is not redistributed
+here — regardless of how the licence might be argued. Booleans carry every
+number reported in RESULTS.md. Anyone wanting the strings can regenerate them
+locally in about fifteen minutes with `extract_axes.py`.
+
+`baseline_*.jsonl` — for each judged pair: the two PubMed ids, a question hash,
+the two assertions, the model's one-word verdict, and whether the pair was
+checkable. These are measurements of model behaviour, not corpus content.
+
+`questions.txt` — question ids and hashes only. No question text.
+
+PubMed identifiers are facts and are not restricted.
+
+TO THE BEST OF MY UNDERSTANDING
+-------------------------------
+This layout was chosen so that no licence interpretation is required: nothing
+here is a reproduction of the corpus. I am not a lawyer. If you are one of the
+corpus authors and disagree with any part of this, open an issue and I will
+remove whatever you ask, immediately.
+
+SHORT QUOTATIONS IN THE PROSE
+-----------------------------
+README.md and RESULTS.md quote a small number of extracted axis fragments — for
+example 'patients with HCM' against 'HCM patients' — to show a specific failure
+of the method. These are two to seven words each, no full claim sentence is
+quoted anywhere, and they appear as criticism of the technique rather than as a
+usable copy of the corpus. That is a deliberate distinction from the excluded
+machine-readable annotations, which reproduced a median 59% of their source.
