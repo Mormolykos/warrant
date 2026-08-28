@@ -228,6 +228,41 @@ prompt.
 So the answer to the rebuttal is: telling the model to be conservative raises
 refusal by forty points and does not correct the direction at all.
 
+### Where the added refusal landed
+
+A reader asked the right follow-up: did the forty-point refusal jump improve
+discrimination between eligible and ineligible pairs, or did it only move the
+operating point? The same split applied to NOT_ENOUGH_INFO answers it. Here
+correct behaviour is a *positive* difference — refuse **more** where the
+conditions are missing.
+
+| run | NOT_ENOUGH_INFO stated | missing | difference | p |
+|---|---|---|---|---|
+| 14b p0 | 24.6% | 29.6% | +5.0 pp | 0.205 |
+| 14b p1 | 80.8% | 67.2% | **−13.6 pp** | 0.001 |
+| 14b p2 | 58.7% | 49.0% | **−9.7 pp** | 0.028 |
+| 14b p3 | 31.7% | 33.7% | +2.0 pp | 0.638 |
+| 8b p0 | 20.4% | 19.4% | −0.9 pp | 0.791 |
+| 8b p1 | 85.0% | 86.6% | +1.6 pp | 0.598 |
+| 8b p2 | 69.5% | 66.5% | −3.0 pp | 0.473 |
+| 8b p3 | 82.6% | 76.6% | −6.0 pp | 0.101 |
+
+**On the 14B it is neither a uniform shift nor an improvement.** Under p1 the
+well-specified pairs gain 56 points of refusal (24.6% → 80.8%) and the
+underspecified pairs gain 38 (29.6% → 67.2%). The two prompts that raise refusal
+most, p1 and p2, are the two that refuse **significantly more often on the pairs
+that state their conditions** — the pairs with the least need of it. A threshold
+shift is monotone and preserves the ranking between the two groups; this
+reverses it, so the change is not one a threshold could have bought.
+
+**What this is not.** Five of eight runs carry the wrong sign, and that is not
+offered as a result — no sign test is claimed here, and it would not pass one.
+Only the two 14B runs are individually significant. Above 80% refusal the rates
+compress against a ceiling, which is where 8b p1 sits. The stated group is 167
+pairs against 561. And *discrimination* here means separating pairs that state
+their conditions from pairs that do not — **not** separating true contradictions
+from false ones, for which this corpus supplies no ground truth.
+
 ### Replication and prompt fragility
 
 The 8B model's p0 re-run is **identical** to the original §6b run on all 728
