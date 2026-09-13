@@ -280,6 +280,66 @@ read as a clean conflict. On that account, absence of stated conditions is being
 treated as absence of confounds. Testing it needs pairs whose conditions are
 stated *and identical*; this corpus contains four.
 
+## 6d. Is it just length? No — length was hiding the effect
+
+§6c reports that the cautious and strict-evidence prompts create a positive rank
+correlation between refusal and the number of stated axes. The obvious confound,
+raised in discussion: a pair that states more axes is a longer pair, and a small
+model may simply refuse longer input.
+
+**The confound is real.** Spearman(n_axes, words) = **+0.362**, and median input
+length rises monotonically across buckets — 62 words at 3 stated axes, 94 at 9.
+
+**Length by itself does not drive refusal the way that account requires.**
+Spearman(refusal, length), 20,000 permutations:
+
+| model | original | caution | strict-evidence | conservative |
+|---|---|---|---|---|
+| 14b | −0.208 (p<0.0001) | −0.116 (p=0.0014) | −0.139 (p=0.0002) | −0.171 (p<0.0001) |
+| 8b | −0.028 (p=0.46) | +0.006 (p=0.88) | −0.024 (p=0.52) | −0.027 (p=0.47) |
+
+On 14b it runs **negative** — longer input refuses less. On 8b, the smaller
+model, there is no relationship under any of the four prompts.
+
+So length and axis count correlate with each other and pull in **opposite**
+directions on refusal. That is suppression, and removing it makes every positive
+correlation **larger**. Partial Spearman(refusal, n_axes | length), residualised
+on length ranks, and a length-matched stratification that shuffles refusal only
+within a length decile (72 pairs per bin, medians 52–93 words):
+
+| run | zero-order | partial | length-matched |
+|---|---|---|---|
+| 14b caution | +0.132 (p=0.0006) | **+0.188** (p<0.0001) | +0.175 (p<0.0001) |
+| 14b strict-evidence | +0.090 (p=0.015) | **+0.152** (p<0.0001) | +0.151 (p=0.0001) |
+| 8b conservative | +0.112 (p=0.0021) | **+0.131** (p=0.0003) | +0.132 (p=0.0005) |
+| 8b strict-evidence | +0.083 (p=0.026) | **+0.098** (p=0.0096) | +0.087 (p=0.019) |
+| 14b original | −0.027 (p=0.47) | +0.053 (p=0.16) | +0.057 (p=0.13) |
+| 14b conservative | −0.027 (p=0.47) | +0.038 (p=0.31) | +0.045 (p=0.23) |
+| 8b original | −0.008 (p=0.83) | +0.002 (p=0.96) | −0.002 (p=0.97) |
+| 8b caution | −0.011 (p=0.77) | −0.014 (p=0.72) | −0.037 (p=0.31) |
+
+Two independent methods, the same four significant cells and the same four
+nulls.
+
+**A correction that came out of rebuilding this.** The §6c figures used a
+pmid-level join between judgements and axis annotations. A PMID can carry more
+than one claim sentence, so the correct key is `(pmid, sentence sha256)` — the
+one `run_baseline.py` itself uses. Re-keying moves the eight published rho values
+by **at most 0.005** and changes no sign and no verdict. The table above uses the
+corrected key; `length_control.py` prints both and fails loudly if they diverge
+by more than 0.006.
+
+**What this does not show.** Word count is whitespace tokens, not qwen's BPE;
+character count gives the same picture — Spearman(words, chars) = +0.936 — but
+both are proxies. Ruling out length is not identifying a mechanism. These are
+still small correlations; +0.188 is the largest in the table. And the
+manipulation that would identify the mechanism — the conservative prompt with an
+explicit criteria list added and nothing else changed — has not been run.
+
+```
+python length_control.py
+```
+
 ## 7. Limitations
 
 - **Single extractor, single model, single annotator.** No inter-annotator
